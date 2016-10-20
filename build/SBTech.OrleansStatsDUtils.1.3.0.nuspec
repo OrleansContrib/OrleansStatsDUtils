@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>SBTech.OrleansStatsDUtils</id>
-        <version>0.1.0</version>
+        <version>1.3.0</version>
         <title>OrleansStatsDUtils</title>
         <authors>AntyaDev</authors>
         <owners>AntyaDev</owners>
@@ -14,7 +14,7 @@
         <copyright>SBTech Copyright © 2016</copyright>
         <tags>Orleans StatsD Actor-Model Actors</tags>
         <dependencies>
-            <dependency id="Microsoft.Orleans.Core" version="1.2.0" />
+            <dependency id="Microsoft.Orleans.Core" version="1.3.0" />
             <dependency id="StatsdClient" version="1.3.44" />
         </dependencies>
     </metadata>
