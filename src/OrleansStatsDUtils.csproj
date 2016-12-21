@@ -34,23 +34,24 @@
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Orleans, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.Core.1.3.0\lib\net451\Orleans.dll</HintPath>
+    <Reference Include="Orleans, Version=1.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Orleans.Core.1.3.1\lib\net451\Orleans.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="StatsdClient, Version=1.3.44.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\StatsdClient.1.3.44\lib\net35\StatsdClient.dll</HintPath>
+    <Reference Include="StatsdClient, Version=1.4.51.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StatsdClient.1.4.51\lib\net35\StatsdClient.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="StatsdClient.Configuration, Version=1.3.44.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\StatsdClient.1.3.44\lib\net35\StatsdClient.Configuration.dll</HintPath>
+    <Reference Include="StatsdClient.Configuration, Version=1.4.51.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StatsdClient.1.4.51\lib\net35\StatsdClient.Configuration.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.1.37.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.1.37\lib\dotnet\System.Collections.Immutable.dll</HintPath>
+    <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.3.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -64,6 +65,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

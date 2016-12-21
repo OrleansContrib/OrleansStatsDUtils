@@ -149,8 +149,7 @@ namespace SBTech.OrleansStatsDUtils
             Metrics.GaugeAbsoluteValue("cpu_usage", metricsData.CpuUsage);
             Metrics.GaugeAbsoluteValue("total_physical_memory", metricsData.TotalPhysicalMemory);
             Metrics.GaugeAbsoluteValue("available_physical_memory", metricsData.AvailablePhysicalMemory);
-            Metrics.GaugeAbsoluteValue("memory_usage", metricsData.MemoryUsage);
-            Metrics.GaugeAbsoluteValue("memory_usage", metricsData.MemoryUsage);
+            Metrics.GaugeAbsoluteValue("memory_usage", metricsData.MemoryUsage);            
             Metrics.GaugeAbsoluteValue("total_physical_memory", metricsData.TotalPhysicalMemory);
             Metrics.GaugeAbsoluteValue("send_queue_length", metricsData.SendQueueLength);
             Metrics.GaugeAbsoluteValue("receive_queue_length", metricsData.ReceiveQueueLength);
