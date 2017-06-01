@@ -11,8 +11,6 @@ namespace Orleans.Telemetry
 {
     public class StatsdClientMetricsProvider : StatsdProvider, IConfigurableClientMetricsDataPublisher, IStatisticsPublisher
     {
-        private int MAX_BULK_UPDATE_DOCS = 200;
-
         public StatsdClientMetricsProvider()
         {
             StatsdConfiguration.CheckConfiguration();
