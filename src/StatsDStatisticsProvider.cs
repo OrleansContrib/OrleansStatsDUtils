@@ -1,22 +1,16 @@
-﻿using System;
+﻿using Orleans.Providers;
+using Orleans.Runtime;
+using StatsdClient;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Orleans;
-using Orleans.Providers;
-using Orleans.Runtime;
-using StatsdClient;
 
-namespace SBTech.OrleansStatsDUtils
+namespace Orleans.Telemetry
 {
-
-
-    public class StatsDStatisticsProvider : StatsdProvider, 
-                                            IConfigurableSiloMetricsDataPublisher,
-                                            IStatisticsPublisher,
-                                            IProvider
+    public class StatsdStatisticsProvider : StatsdProvider, IConfigurableSiloMetricsDataPublisher, IStatisticsPublisher, IProvider
     {
         public StatsdStatisticsProvider()
         {
@@ -44,9 +38,6 @@ namespace SBTech.OrleansStatsDUtils
             return TaskDone.Done;
         }
 
-        /// <summary>
-        /// Initialization of configuration for Silo
-        /// </summary> 
         public void AddConfiguration(string deploymentId, bool isSilo, string siloName, SiloAddress address, IPEndPoint gateway, string hostName)
         {
             _state.DeploymentId = deploymentId;
@@ -63,47 +54,25 @@ namespace SBTech.OrleansStatsDUtils
         public Task ReportMetrics(ISiloPerformanceMetrics metricsData)
         {
             if (_logger != null && _logger.IsVerbose3)
+            {
                 _logger.Verbose3($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics called with metrics: {0}, name: {1}, id: {2}.", metricsData, _state.SiloName, _state.Id);
+            }
 
             try
             {
                 SendSiloMetrics(metricsData);
-                return TaskDone.Done;
             }
             catch (Exception ex)
             {
                 if (_logger != null && _logger.IsVerbose)
-                    _logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics failed: {0}", ex);
-
-                throw;
-            }            
-        }
-
-        /// <summary>
-        /// Stats for Silo and Client
-        /// </summary>  
-        public Task ReportStats(List<ICounter> statsCounters)
-        {
-            if (_logger != null && _logger.IsVerbose3)
-                _logger.Verbose3($"{ nameof(StatsdStatisticsProvider)}.ReportStats called with {0} counters, name: {1}, id: {2}", statsCounters.Count, _state.SiloName, _state.Id);
-
-            try
-            {
-                var counters = statsCounters.Where(cs => cs.Storage == CounterStorage.LogAndTable);
-
-                foreach (var counter in counters)
                 {
-                    SendStats(counter);
+                    _logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics failed: {0}", ex);
                 }
-                return TaskDone.Done;
-            }
-            catch (Exception ex)
-            {
-                if (_logger != null && _logger.IsVerbose)
-                    _logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportStats failed: {0}", ex);
 
                 throw;
-            }            
+            }
+
+            return TaskDone.Done;
         }
 
         private static void SendSiloMetrics(ISiloPerformanceMetrics metricsData)
@@ -117,6 +86,38 @@ namespace SBTech.OrleansStatsDUtils
             SendCoreMetrics(metricsData);
         }
 
+        /// <summary>
+        /// Stats for Silo and Client
+        /// </summary>  
+        public Task ReportStats(List<ICounter> statsCounters)
+        {
+            if (_logger != null && _logger.IsVerbose3)
+            {
+                _logger.Verbose3($"{ nameof(StatsdStatisticsProvider)}.ReportStats called with {0} counters, name: {1}, id: {2}", statsCounters.Count, _state.SiloName, _state.Id);
+            }
+
+            try
+            {
+                var counters = statsCounters.Where(cs => cs.Storage == CounterStorage.LogAndTable);
+
+                foreach (var counter in counters)
+                {
+                    SendStats(counter);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null && _logger.IsVerbose)
+                {
+                    _logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportStats failed: {0}", ex);
+                }
+
+                throw;
+            }
+
+            return TaskDone.Done;
+        }
+
         private static void SendStats(ICounter counter)
         {
             var valueStr = counter.IsValueDelta
@@ -124,6 +125,7 @@ namespace SBTech.OrleansStatsDUtils
                 : counter.GetValueString();
 
             float value;
+
             if (float.TryParse(valueStr, NumberStyles.Number, CultureInfo.InvariantCulture, out value))
             {
                 var counterName = counter.Name.ToLowerInvariant();
