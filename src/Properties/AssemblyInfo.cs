@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("OrleansStatsDUtils")]
-[assembly: AssemblyDescription("Orleans statistics provider for StatsD")]
+[assembly: AssemblyTitle("Orleans.TelemetryConsumers.Statsd")]
+[assembly: AssemblyDescription("Orleans Telemetry for statsd")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("SBTech")]
-[assembly: AssemblyProduct("OrleansStatsDUtils")]
-[assembly: AssemblyCopyright("SBTech Copyright © 2016")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Orleans.TelemetryConsumers.Statsd")]
+[assembly: AssemblyCopyright("Copyright © 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("323d231f-be97-4206-aec9-6b383aeeeb42")]
+[assembly: Guid("4AACCBB1-9A2F-4571-8371-3E231EFC311E")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.3.1.0")]
-[assembly: AssemblyFileVersion("1.3.1.0")]
+[assembly: AssemblyVersion("1.0.0.*")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
