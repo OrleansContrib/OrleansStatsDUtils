@@ -10,7 +10,10 @@ using System.Threading.Tasks;
 
 namespace Orleans.Telemetry
 {
-    public class StatsdStatisticsProvider : StatsdProvider, IConfigurableSiloMetricsDataPublisher, IStatisticsPublisher, IProvider
+    public class StatsdStatisticsProvider : 
+        StatsdProvider, 
+        IConfigurableSiloMetricsDataPublisher, 
+        IStatisticsPublisher
     {
         public StatsdStatisticsProvider()
         {
@@ -19,33 +22,33 @@ namespace Orleans.Telemetry
 
         public Task Init(string deploymentId, string storageConnectionString, SiloAddress siloAddress, string siloName, IPEndPoint gateway, string hostName)
         {
-            _state.DeploymentId = deploymentId;
-            _state.SiloName = siloName;
-            _state.GatewayAddress = gateway.ToString();
-            _state.HostName = hostName;
+            State.DeploymentId = deploymentId;
+            State.SiloName = siloName;
+            State.GatewayAddress = gateway.ToString();
+            State.HostName = hostName;
 
             return TaskDone.Done;
         }
 
         public Task Init(bool isSilo, string storageConnectionString, string deploymentId, string address, string siloName, string hostName)
         {
-            _state.DeploymentId = deploymentId;
-            _state.IsSilo = isSilo;
-            _state.SiloName = siloName;
-            _state.Address = address;
-            _state.HostName = hostName;
+            State.DeploymentId = deploymentId;
+            State.IsSilo = isSilo;
+            State.SiloName = siloName;
+            State.Address = address;
+            State.HostName = hostName;
 
             return TaskDone.Done;
         }
 
         public void AddConfiguration(string deploymentId, bool isSilo, string siloName, SiloAddress address, IPEndPoint gateway, string hostName)
         {
-            _state.DeploymentId = deploymentId;
-            _state.IsSilo = isSilo;
-            _state.SiloName = siloName;
-            _state.Address = address.ToString();
-            _state.GatewayAddress = gateway.ToString();
-            _state.HostName = hostName;
+            State.DeploymentId = deploymentId;
+            State.IsSilo = isSilo;
+            State.SiloName = siloName;
+            State.Address = address.ToString();
+            State.GatewayAddress = gateway.ToString();
+            State.HostName = hostName;
         }
 
         /// <summary>
@@ -53,9 +56,9 @@ namespace Orleans.Telemetry
         /// </summary>        
         public Task ReportMetrics(ISiloPerformanceMetrics metricsData)
         {
-            if (_logger != null && _logger.IsVerbose3)
+            if (Logger != null && Logger.IsVerbose3)
             {
-                _logger.Verbose3($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics called with metrics: {0}, name: {1}, id: {2}.", metricsData, _state.SiloName, _state.Id);
+                Logger.Verbose3($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics called with metrics: {0}, name: {1}, id: {2}.", metricsData, State.SiloName, State.Id);
             }
 
             try
@@ -64,9 +67,9 @@ namespace Orleans.Telemetry
             }
             catch (Exception ex)
             {
-                if (_logger != null && _logger.IsVerbose)
+                if (Logger != null && Logger.IsVerbose)
                 {
-                    _logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics failed: {0}", ex);
+                    Logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics failed: {0}", ex);
                 }
 
                 throw;
@@ -91,9 +94,9 @@ namespace Orleans.Telemetry
         /// </summary>  
         public Task ReportStats(List<ICounter> statsCounters)
         {
-            if (_logger != null && _logger.IsVerbose3)
+            if (Logger != null && Logger.IsVerbose3)
             {
-                _logger.Verbose3($"{ nameof(StatsdStatisticsProvider)}.ReportStats called with {0} counters, name: {1}, id: {2}", statsCounters.Count, _state.SiloName, _state.Id);
+                Logger.Verbose3($"{ nameof(StatsdStatisticsProvider)}.ReportStats called with {0} counters, name: {1}, id: {2}", statsCounters.Count, State.SiloName, State.Id);
             }
 
             try
@@ -107,9 +110,9 @@ namespace Orleans.Telemetry
             }
             catch (Exception ex)
             {
-                if (_logger != null && _logger.IsVerbose)
+                if (Logger != null && Logger.IsVerbose)
                 {
-                    _logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportStats failed: {0}", ex);
+                    Logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportStats failed: {0}", ex);
                 }
 
                 throw;

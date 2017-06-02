@@ -19,15 +19,13 @@ namespace Orleans.Telemetry
                 StatsdMaxUDPPacketSize = maxUdpPacketSize
             });
         }
-
-        public static bool IsConfigured()
-        {
-            return _configured;
-        }
-
+        
         public static void CheckConfiguration()
         {
-            throw new NotImplementedException();
+            if (!_configured)
+            {
+                throw new Exception("You should call StatsdConfiguration.Initialize() first");
+            }
         }
     }
 }

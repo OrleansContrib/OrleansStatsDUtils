@@ -1,7 +1,6 @@
 ﻿using Orleans.Providers;
 using Orleans.Runtime;
 using StatsdClient;
-using System;
 using System.Threading.Tasks;
 
 namespace Orleans.Telemetry
@@ -13,9 +12,9 @@ namespace Orleans.Telemetry
         public const string StatsdPrefix = "StatsdPrefix";
         public const string StatsdCultureInfo = "StatsdCultureInfo";
         
-        protected Logger _logger;
+        protected Logger Logger;
 
-        internal readonly State _state = new State();
+        internal readonly State State = new State();
 
         public StatsdProvider()
         {
@@ -33,9 +32,9 @@ namespace Orleans.Telemetry
         {
             Name = name;
 
-            _state.Id = providerRuntime.SiloIdentity;
-            _state.ServiceId = providerRuntime.ServiceId;
-            _logger = providerRuntime.GetLogger(typeof(StatsdStatisticsProvider).Name);
+            State.Id = providerRuntime.SiloIdentity;
+            State.ServiceId = providerRuntime.ServiceId;
+            Logger = providerRuntime.GetLogger(typeof(StatsdStatisticsProvider).Name);
           
             return TaskDone.Done;
         }

@@ -19,17 +19,9 @@ namespace Orleans.Telemetry
     {
         private readonly string _indexPrefix;
 
-        public StatsdTelemetryConsumer()
-        {
-            StatsdConfiguration.CheckConfiguration();
-        }
-
         public StatsdTelemetryConsumer(string indexPrefix = "")
         {
-            if (StatsdConfiguration.IsConfigured())
-            {
-                throw new Exception();
-            }
+            StatsdConfiguration.CheckConfiguration();
 
             _indexPrefix = indexPrefix;
         }

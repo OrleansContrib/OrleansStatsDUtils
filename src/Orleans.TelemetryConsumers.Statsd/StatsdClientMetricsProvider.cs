@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 
 namespace Orleans.Telemetry
 {
-    public class StatsdClientMetricsProvider : StatsdProvider, IConfigurableClientMetricsDataPublisher, IStatisticsPublisher
+    public class StatsdClientMetricsProvider : 
+        StatsdProvider, 
+        IConfigurableClientMetricsDataPublisher, 
+        IStatisticsPublisher
     {
         public StatsdClientMetricsProvider()
         {
@@ -18,16 +21,16 @@ namespace Orleans.Telemetry
 
         public void AddConfiguration(string deploymentId, string hostName, string clientId, IPAddress address)
         {
-            _state.DeploymentId = deploymentId;
-            _state.Id = clientId;
-            _state.Address = address.ToString();
-            _state.HostName = hostName;
+            State.DeploymentId = deploymentId;
+            State.Id = clientId;
+            State.Address = address.ToString();
+            State.HostName = hostName;
         }
         
         public Task Init(ClientConfiguration config, IPAddress address, string clientId)
         {
-            _state.Id = clientId;
-            _state.Address = address.ToString();
+            State.Id = clientId;
+            State.Address = address.ToString();
 
             return TaskDone.Done;
         }
@@ -39,8 +42,8 @@ namespace Orleans.Telemetry
         /// </summary>        
         public async Task ReportMetrics(IClientPerformanceMetrics metricsData)
         {
-            if (_logger != null && _logger.IsVerbose3)
-                _logger.Verbose3($"{nameof(StatsdClientMetricsProvider)}.ReportMetrics called with metrics: {0}, name: {1}, id: {2}.", metricsData, _state.SiloName, _state.Id);
+            if (Logger != null && Logger.IsVerbose3)
+                Logger.Verbose3($"{nameof(StatsdClientMetricsProvider)}.ReportMetrics called with metrics: {0}, name: {1}, id: {2}.", metricsData, State.SiloName, State.Id);
 
             try
             {
@@ -48,8 +51,8 @@ namespace Orleans.Telemetry
             }
             catch (Exception ex)
             {
-                if (_logger != null && _logger.IsVerbose)
-                    _logger.Verbose($"{ nameof(StatsdClientMetricsProvider)}.ReportMetrics failed: {0}", ex);
+                if (Logger != null && Logger.IsVerbose)
+                    Logger.Verbose($"{ nameof(StatsdClientMetricsProvider)}.ReportMetrics failed: {0}", ex);
 
                 throw;
             }
@@ -67,9 +70,9 @@ namespace Orleans.Telemetry
         /// </summary>  
         public async Task ReportStats(List<ICounter> statsCounters)
         {
-            if (_logger != null && _logger.IsVerbose3)
+            if (Logger != null && Logger.IsVerbose3)
             {
-                _logger.Verbose3($"{ nameof(StatsdClientMetricsProvider)}.ReportStats called with {0} counters, name: {1}, id: {2}", statsCounters.Count, _state.SiloName, _state.Id);
+                Logger.Verbose3($"{ nameof(StatsdClientMetricsProvider)}.ReportStats called with {0} counters, name: {1}, id: {2}", statsCounters.Count, State.SiloName, State.Id);
             }
 
             try
@@ -81,9 +84,9 @@ namespace Orleans.Telemetry
             }
             catch (Exception ex)
             {
-                if (_logger != null && _logger.IsVerbose)
+                if (Logger != null && Logger.IsVerbose)
                 {
-                    _logger.Verbose($"{ nameof(StatsdClientMetricsProvider)}.ReportStats failed: {0}", ex);
+                    Logger.Verbose($"{ nameof(StatsdClientMetricsProvider)}.ReportStats failed: {0}", ex);
                 }
 
                 throw;
