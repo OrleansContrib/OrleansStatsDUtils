@@ -7,11 +7,6 @@ namespace Orleans.Telemetry
 {
     public abstract class StatsdProvider : IProvider
     {
-        public const string StatsdHostAddress = "StatsdHostAddress";
-        public const string StatsdPort = "StatsdPort";
-        public const string StatsdPrefix = "StatsdPrefix";
-        public const string StatsdCultureInfo = "StatsdCultureInfo";
-        
         protected Logger Logger;
 
         internal readonly State State = new State();
@@ -35,12 +30,13 @@ namespace Orleans.Telemetry
             State.Id = providerRuntime.SiloIdentity;
             State.ServiceId = providerRuntime.ServiceId;
             Logger = providerRuntime.GetLogger(typeof(StatsdStatisticsProvider).Name);
-          
+
             return TaskDone.Done;
         }
 
         protected static void SendCoreMetrics(ICorePerformanceMetrics metricsData)
         {
+            //Todo: replace to constants
             Metrics.GaugeAbsoluteValue("cpu_usage", metricsData.CpuUsage);
             Metrics.GaugeAbsoluteValue("total_physical_memory", metricsData.TotalPhysicalMemory);
             Metrics.GaugeAbsoluteValue("available_physical_memory", metricsData.AvailablePhysicalMemory);
@@ -50,8 +46,8 @@ namespace Orleans.Telemetry
             Metrics.GaugeAbsoluteValue("receive_queue_length", metricsData.ReceiveQueueLength);
             Metrics.GaugeAbsoluteValue("sent_messages", metricsData.SentMessages);
             Metrics.GaugeAbsoluteValue("received_messages", metricsData.ReceivedMessages);
-
         }
+
         /// <summary>
         /// Name of the provider
         /// </summary>

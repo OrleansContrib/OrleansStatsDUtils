@@ -1,5 +1,4 @@
-﻿using Orleans.Providers;
-using Orleans.Runtime;
+﻿using Orleans.Runtime;
 using StatsdClient;
 using System;
 using System.Collections.Generic;

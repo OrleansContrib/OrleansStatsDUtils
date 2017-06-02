@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Orleans.Telemetry
 {
-    public class StatsdClientMetricsProvider : 
-        StatsdProvider, 
-        IConfigurableClientMetricsDataPublisher, 
+    public class StatsdClientMetricsProvider :
+        StatsdProvider,
+        IConfigurableClientMetricsDataPublisher,
         IStatisticsPublisher
     {
         public StatsdClientMetricsProvider()
@@ -26,7 +26,7 @@ namespace Orleans.Telemetry
             State.Address = address.ToString();
             State.HostName = hostName;
         }
-        
+
         public Task Init(ClientConfiguration config, IPAddress address, string clientId)
         {
             State.Id = clientId;
@@ -40,7 +40,7 @@ namespace Orleans.Telemetry
         /// <summary>
         /// Metrics for client
         /// </summary>        
-        public async Task ReportMetrics(IClientPerformanceMetrics metricsData)
+        public Task ReportMetrics(IClientPerformanceMetrics metricsData)
         {
             if (Logger != null && Logger.IsVerbose3)
                 Logger.Verbose3($"{nameof(StatsdClientMetricsProvider)}.ReportMetrics called with metrics: {0}, name: {1}, id: {2}.", metricsData, State.SiloName, State.Id);
@@ -56,9 +56,11 @@ namespace Orleans.Telemetry
 
                 throw;
             }
+
+            return TaskDone.Done;
         }
 
-        private void SendClientPerformanceMetrics(IClientPerformanceMetrics metricsData)
+        private static void SendClientPerformanceMetrics(IClientPerformanceMetrics metricsData)
         {
             SendCoreMetrics(metricsData);
 
@@ -68,7 +70,7 @@ namespace Orleans.Telemetry
         /// <summary>
         /// Stats for Silo and Client
         /// </summary>  
-        public async Task ReportStats(List<ICounter> statsCounters)
+        public Task ReportStats(List<ICounter> statsCounters)
         {
             if (Logger != null && Logger.IsVerbose3)
             {
@@ -91,9 +93,11 @@ namespace Orleans.Telemetry
 
                 throw;
             }
+
+            return TaskDone.Done;
         }
 
-        private void SendStats(ICounter counter)
+        private static void SendStats(ICounter counter)
         {
             var valueStr = counter.IsValueDelta
                 ? counter.GetDeltaString()
