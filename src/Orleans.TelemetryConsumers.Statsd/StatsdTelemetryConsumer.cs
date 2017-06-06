@@ -1,94 +1,72 @@
 ﻿using Orleans.Runtime;
+using StatsdClient;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Net;
-using System.Threading.Tasks;
-using StatsdClient;
 
 namespace Orleans.Telemetry
 {
-    public class StatsdTelemetryConsumer :
-        IMetricTelemetryConsumer,
-        ITraceTelemetryConsumer,
-        IEventTelemetryConsumer,
-        IExceptionTelemetryConsumer,
-        IDependencyTelemetryConsumer,
-        IRequestTelemetryConsumer,
-        IFlushableLogConsumer
+    public class StatsdTelemetryConsumer : IMetricTelemetryConsumer, ITraceTelemetryConsumer,
+                                           IEventTelemetryConsumer, IExceptionTelemetryConsumer,
+                                           IDependencyTelemetryConsumer, IRequestTelemetryConsumer,
+                                           IFlushableLogConsumer
     {
-        private readonly string _indexPrefix;
+        readonly string _indexPrefix;
 
         public StatsdTelemetryConsumer(string indexPrefix = "")
         {
             StatsdConfiguration.CheckConfiguration();
-
             _indexPrefix = indexPrefix;
         }
 
+        const string MetricTelemetryType = "metric";
+        const string TraceTelemetryType = "trace";
+        const string EventTelemetryType = "event";
+        const string ExceptionTelemetryType = "exception";
+        const string DependencyTelemetryType = "dependency";
+        const string RequestTelemetryType = "request";
+        const string LogType = "log";
 
-        private string Index => _indexPrefix + "-" + DateTime.UtcNow.ToString("yyyy-MM-dd-HH");
-
-        private static string MetricTelemetryType = "metric";
-        private const string TraceTelemetryType = "trace";
-        private const string EventTelemetryType = "event";
-        private const string ExceptionTelemetryType = "exception";
-        private const string DependencyTelemetryType = "dependency";
-        private const string RequestTelemetryType = "request";
-        private const string LogType = "log";
-
-        #region IFlushableLogConsumer
-
-        public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint, Exception exception, int eventCode = 0)
+        public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint,
+                        Exception exception, int eventCode = 0)
         {
-            Task.Run(async () =>
-            {
-                var tm = new ExpandoObject() as IDictionary<string, Object>;
-                tm.Add("Severity", severity.ToString());
-                tm.Add("LoggerType", loggerType);
-                tm.Add("Caller", caller);
-                tm.Add("Message", message);
-                tm.Add("IPEndPoint", myIPEndPoint);
-                tm.Add("Exception", exception);
-                tm.Add("EventCode", eventCode);
+            var metrics = new ExpandoObject() as IDictionary<string, Object>;
 
-                await FinalWrite(tm, LogType);
-            });
+            metrics.Add("severity", severity.ToString());
+            metrics.Add("loggerType", loggerType);
+            metrics.Add("caller", caller);
+            metrics.Add("message", message);
+            metrics.Add("ip_end_point", myIPEndPoint);
+            metrics.Add("exception", exception);
+            metrics.Add("event_code", eventCode);
+
+            FinalWrite(metrics, LogType);
         }
-
-        #endregion
-
-        #region IExceptionTelemetryConsumer
 
         public void TrackException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
-            Task.Run(async () =>
+            var tm = new ExpandoObject() as IDictionary<string, Object>;
+            tm.Add("exception", exception);
+            tm.Add("message", exception.Message);
+
+            if (properties != null)
             {
-                var tm = new ExpandoObject() as IDictionary<string, Object>;
-                tm.Add("Exception", exception);
-                tm.Add("Message", exception.Message);
-                if (properties != null)
+                foreach (var prop in properties)
                 {
-                    foreach (var prop in properties)
-                    {
-                        tm.Add(prop.Key, prop.Value);
-                    }
+                    tm.Add(prop.Key, prop.Value);
                 }
-                if (metrics != null)
+            }
+            if (metrics != null)
+            {
+                foreach (var prop in metrics)
                 {
-                    foreach (var prop in metrics)
-                    {
-                        tm.Add(prop.Key, prop.Value);
-                    }
+                    tm.Add(prop.Key, prop.Value);
                 }
+            }
 
-                await FinalWrite(tm, ExceptionTelemetryType);
-            });
+            FinalWrite(tm, ExceptionTelemetryType);
         }
-
-        #endregion
-
-        #region ITraceTelemetryConsumer
 
         public void TrackTrace(string message)
         {
@@ -117,45 +95,42 @@ namespace Orleans.Telemetry
             WriteTrace(message, severity, properties);
         }
 
-        public async Task WriteTrace(string message, Severity severity, IDictionary<string, string> properties)
+        public void WriteTrace(string message, Severity severity, IDictionary<string, string> properties)
         {
-            var tm = new ExpandoObject() as IDictionary<string, Object>;
-            tm.Add("Message", message);
-            tm.Add("Severity", severity.ToString());
+            var metrics = new Dictionary<string, Object>();
+
+            metrics.Add("message", message);
+            metrics.Add("severity", severity.ToString());
+
             if (properties != null)
             {
                 foreach (var prop in properties)
                 {
-                    tm.Add(prop.Key, prop.Value);
+                    metrics.Add(prop.Key, prop.Value);
                 }
             }
 
-            await FinalWrite(tm, TraceTelemetryType);
+            FinalWrite(metrics, TraceTelemetryType);
         }
-
-
-        #endregion
-
-        #region IMetricTelemetryConsumer
 
         public void DecrementMetric(string name)
         {
-            WriteMetric(name, -1, null);
+            WriteMetric(name, -1);
         }
 
         public void DecrementMetric(string name, double value)
         {
-            WriteMetric(name, value * -1, null);
+            WriteMetric(name, value * -1);
         }
 
         public void IncrementMetric(string name)
         {
-            WriteMetric(name, 1, null);
+            WriteMetric(name, 1);
         }
 
         public void IncrementMetric(string name, double value)
         {
-            WriteMetric(name, value, null);
+            WriteMetric(name, value);
         }
 
         public void TrackMetric(string name, TimeSpan value, IDictionary<string, string> properties = null)
@@ -168,111 +143,84 @@ namespace Orleans.Telemetry
             WriteMetric(name, value, properties);
         }
 
-
         public void WriteMetric(string name, double value, IDictionary<string, string> properties = null)
         {
-            Task.Run(async () =>
+            var metrics = new Dictionary<string, Object>();
+
+            metrics.Add(name, value);
+
+            if (properties != null)
             {
-                var tm = new ExpandoObject() as IDictionary<string, Object>;
-                //tm.Add("Name", name);
-                //tm.Add("Value", value);
-                tm.Add(name, value);
-                if (properties != null)
+                foreach (var prop in properties)
                 {
-                    foreach (var prop in properties)
-                    {
-                        tm.Add(prop.Key, prop.Value);
-                    }
+                    metrics.Add(prop.Key, prop.Value);
                 }
+            }
 
-                await FinalWrite(tm, MetricTelemetryType);
-            });
+            FinalWrite(metrics, MetricTelemetryType);
+
         }
-
-
-        #endregion
-
-        #region IDependencyTelemetryConsumer
 
         public void TrackDependency(string dependencyName, string commandName, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
-            Task.Run(async () =>
-            {
-                var tm = new ExpandoObject() as IDictionary<string, Object>;
-                tm.Add("DependencyName", dependencyName);
-                tm.Add("CommandName", commandName);
-                tm.Add("StartTime", startTime);
-                tm.Add("Duration", duration);
-                tm.Add("Success", success);
+            var metrics = new Dictionary<string, Object>();
 
-                await FinalWrite(tm, DependencyTelemetryType);
-            });
+            metrics.Add("dependency_name", dependencyName);
+            metrics.Add("command_name", commandName);
+            metrics.Add("start_time", startTime);
+            metrics.Add("duration", duration);
+            metrics.Add("success", success);
+
+            FinalWrite(metrics, DependencyTelemetryType);
         }
 
-        #endregion
 
-        #region IRequestTelemetryConsumer
-
-        public void TrackRequest(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode,
-            bool success)
+        public void TrackRequest(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode, bool success)
         {
-            Task.Run(async () =>
-            {
-                var tm = new ExpandoObject() as IDictionary<string, Object>;
-                tm.Add("Request", name);
-                tm.Add("StartTime", startTime);
-                tm.Add("Duration", duration);
-                tm.Add("ResponseCode", responseCode);
-                tm.Add("Success", success);
+            var metrics = new Dictionary<string, Object>();
 
-                await FinalWrite(tm, RequestTelemetryType);
-            });
+            metrics.Add("request", name);
+            metrics.Add("start_time", startTime);
+            metrics.Add("duration", duration);
+            metrics.Add("response_code", responseCode);
+            metrics.Add("success", success);
+
+            FinalWrite(metrics, RequestTelemetryType);
+
         }
 
-        #endregion
-
-        #region IEventTelemetryConsumer
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
-            Task.Run(async () =>
-            {
-                var tm = new ExpandoObject() as IDictionary<string, Object>;
-                tm.Add("Eventname", eventName);
-                if (properties != null)
-                {
-                    foreach (var prop in properties)
-                    {
-                        tm.Add(prop.Key, prop.Value);
-                    }
-                }
-                if (metrics != null)
-                {
-                    foreach (var prop in metrics)
-                    {
-                        tm.Add(prop.Key, prop.Value);
-                    }
-                }
+            var eventData = new Dictionary<string, object> { { "event_name", eventName } };
 
-                await FinalWrite(tm, EventTelemetryType);
-            });
+            if (properties != null)
+            {
+                foreach (var prop in properties)
+                {
+                    eventData.Add(prop.Key, prop.Value);
+                }
+            }
+            if (metrics != null)
+            {
+                foreach (var prop in metrics)
+                {
+                    eventData.Add(prop.Key, prop.Value);
+                }
+            }
+
+            FinalWrite(eventData, EventTelemetryType);
         }
 
-        #endregion
-
-        #region FinalWrite
-
-        private async Task FinalWrite(IDictionary<string, object> tm, string type)
+        void FinalWrite(IDictionary<string, object> metrics, string eventType)
         {
-            tm.Add("UtcDateTime", DateTimeOffset.UtcNow.UtcDateTime);
-            tm.Add("MachineName", Environment.MachineName);
+            metrics.Add($"utc_date_time_{eventType}", DateTimeOffset.UtcNow.UtcDateTime);
+            metrics.Add($"machine_name_{eventType}", Environment.MachineName);
 
-            foreach (var item in tm)
+            foreach (var item in metrics)
             {
-                Metrics.Set(item.Key, item.Value.ToString());
+                Metrics.Set($"{_indexPrefix}.{item.Key}", item.Value.ToString());
             }
         }
-
-        #endregion
 
         public void Flush()
         {

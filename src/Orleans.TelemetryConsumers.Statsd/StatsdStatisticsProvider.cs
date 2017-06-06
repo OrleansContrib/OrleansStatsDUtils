@@ -2,6 +2,7 @@
 using StatsdClient;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -9,24 +10,24 @@ using System.Threading.Tasks;
 
 namespace Orleans.Telemetry
 {
-    public class StatsdStatisticsProvider : 
-        StatsdProvider, 
-        IConfigurableSiloMetricsDataPublisher, 
-        IStatisticsPublisher
+    public class StatsdStatisticsProvider : StatsdProvider, IConfigurableSiloMetricsDataPublisher, IStatisticsPublisher
     {
         public StatsdStatisticsProvider()
         {
             StatsdConfiguration.CheckConfiguration();
         }
 
-        public Task Init(string deploymentId, string storageConnectionString, SiloAddress siloAddress, string siloName, IPEndPoint gateway, string hostName)
+        public Task Init(string deploymentId, string storageConnectionString, SiloAddress siloAddress, string siloName,
+            IPEndPoint gateway, string hostName)
         {
+            
+            State.Address = siloAddress.Endpoint.ToString();
             State.DeploymentId = deploymentId;
             State.SiloName = siloName;
             State.GatewayAddress = gateway.ToString();
             State.HostName = hostName;
 
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
         public Task Init(bool isSilo, string storageConnectionString, string deploymentId, string address, string siloName, string hostName)
@@ -37,7 +38,7 @@ namespace Orleans.Telemetry
             State.Address = address;
             State.HostName = hostName;
 
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
         public void AddConfiguration(string deploymentId, bool isSilo, string siloName, SiloAddress address, IPEndPoint gateway, string hostName)
@@ -55,10 +56,7 @@ namespace Orleans.Telemetry
         /// </summary>        
         public Task ReportMetrics(ISiloPerformanceMetrics metricsData)
         {
-            if (Logger != null && Logger.IsVerbose3)
-            {
-                Logger.Verbose3($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics called with metrics: {0}, name: {1}, id: {2}.", metricsData, State.SiloName, State.Id);
-            }
+            Trace.Write($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics called with metrics: {metricsData}, name: {State.SiloName}, id: {State.Id}.");
 
             try
             {
@@ -66,26 +64,11 @@ namespace Orleans.Telemetry
             }
             catch (Exception ex)
             {
-                if (Logger != null && Logger.IsVerbose)
-                {
-                    Logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics failed: {0}", ex);
-                }
-
+                Trace.Write($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics failed: {ex}");
                 throw;
             }
 
-            return TaskDone.Done;
-        }
-
-        private static void SendSiloMetrics(ISiloPerformanceMetrics metricsData)
-        {
-            Metrics.GaugeAbsoluteValue("activations_count", metricsData.ActivationCount);
-            Metrics.GaugeAbsoluteValue("recently_used_activations", metricsData.RecentlyUsedActivationCount);
-            Metrics.GaugeAbsoluteValue("request_queue_length", metricsData.RequestQueueLength);
-            Metrics.GaugeAbsoluteValue("is_overloaded", metricsData.IsOverloaded ? 1 : 0);
-            Metrics.GaugeAbsoluteValue("client_count", metricsData.ClientCount);
-
-            SendCoreMetrics(metricsData);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -93,10 +76,7 @@ namespace Orleans.Telemetry
         /// </summary>  
         public Task ReportStats(List<ICounter> statsCounters)
         {
-            if (Logger != null && Logger.IsVerbose3)
-            {
-                Logger.Verbose3($"{ nameof(StatsdStatisticsProvider)}.ReportStats called with {0} counters, name: {1}, id: {2}", statsCounters.Count, State.SiloName, State.Id);
-            }
+            Trace.Write($"{ nameof(StatsdStatisticsProvider)}.ReportStats called with {statsCounters.Count} counters, name: {State.SiloName}, id: {State.Id}");
 
             try
             {
@@ -109,18 +89,14 @@ namespace Orleans.Telemetry
             }
             catch (Exception ex)
             {
-                if (Logger != null && Logger.IsVerbose)
-                {
-                    Logger.Verbose($"{ nameof(StatsdStatisticsProvider)}.ReportStats failed: {0}", ex);
-                }
-
+                Trace.Write($"{nameof(StatsdStatisticsProvider)}.ReportStats failed: {ex}");
                 throw;
             }
 
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
-        private static void SendStats(ICounter counter)
+        static void SendStats(ICounter counter)
         {
             var valueStr = counter.IsValueDelta
                 ? counter.GetDeltaString()
@@ -137,6 +113,17 @@ namespace Orleans.Telemetry
                 else
                     Metrics.GaugeAbsoluteValue(counterName, value);
             }
+        }
+
+        static void SendSiloMetrics(ISiloPerformanceMetrics metricsData)
+        {
+            Metrics.GaugeAbsoluteValue("activations_count", metricsData.ActivationCount);
+            Metrics.GaugeAbsoluteValue("recently_used_activations", metricsData.RecentlyUsedActivationCount);
+            Metrics.GaugeAbsoluteValue("request_queue_length", metricsData.RequestQueueLength);
+            Metrics.GaugeAbsoluteValue("is_overloaded", metricsData.IsOverloaded ? 1 : 0);
+            Metrics.GaugeAbsoluteValue("client_count", metricsData.ClientCount);
+
+            SendCoreMetrics(metricsData);
         }
     }
 }

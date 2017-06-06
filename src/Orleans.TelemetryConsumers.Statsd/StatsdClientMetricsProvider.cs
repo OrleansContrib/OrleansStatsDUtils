@@ -3,17 +3,17 @@ using Orleans.Runtime.Configuration;
 using StatsdClient;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace Orleans.Telemetry
 {
-    public class StatsdClientMetricsProvider :
-        StatsdProvider,
-        IConfigurableClientMetricsDataPublisher,
-        IStatisticsPublisher
+    public class StatsdClientMetricsProvider : StatsdProvider, IConfigurableClientMetricsDataPublisher, IStatisticsPublisher
     {
+        internal readonly State State = new State();
+
         public StatsdClientMetricsProvider()
         {
             StatsdConfiguration.CheckConfiguration();
@@ -32,18 +32,17 @@ namespace Orleans.Telemetry
             State.Id = clientId;
             State.Address = address.ToString();
 
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
-        public Task Init(bool isSilo, string storageConnectionString, string deploymentId, string address, string siloName, string hostName) => TaskDone.Done;
+        public Task Init(bool isSilo, string storageConnectionString, string deploymentId, string address, string siloName, string hostName) => Task.CompletedTask;
 
         /// <summary>
         /// Metrics for client
         /// </summary>        
         public Task ReportMetrics(IClientPerformanceMetrics metricsData)
         {
-            if (Logger != null && Logger.IsVerbose3)
-                Logger.Verbose3($"{nameof(StatsdClientMetricsProvider)}.ReportMetrics called with metrics: {0}, name: {1}, id: {2}.", metricsData, State.SiloName, State.Id);
+            Trace.Write($"{nameof(StatsdClientMetricsProvider)}.ReportMetrics called with metrics: {metricsData}, name: {State.SiloName}, id: {State.Id}.");
 
             try
             {
@@ -51,13 +50,11 @@ namespace Orleans.Telemetry
             }
             catch (Exception ex)
             {
-                if (Logger != null && Logger.IsVerbose)
-                    Logger.Verbose($"{ nameof(StatsdClientMetricsProvider)}.ReportMetrics failed: {0}", ex);
-
+                Trace.Write($"{ nameof(StatsdClientMetricsProvider)}.ReportMetrics failed: {ex}");
                 throw;
             }
 
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
         private static void SendClientPerformanceMetrics(IClientPerformanceMetrics metricsData)
@@ -72,10 +69,7 @@ namespace Orleans.Telemetry
         /// </summary>  
         public Task ReportStats(List<ICounter> statsCounters)
         {
-            if (Logger != null && Logger.IsVerbose3)
-            {
-                Logger.Verbose3($"{ nameof(StatsdClientMetricsProvider)}.ReportStats called with {0} counters, name: {1}, id: {2}", statsCounters.Count, State.SiloName, State.Id);
-            }
+            Trace.Write($"{ nameof(StatsdClientMetricsProvider)}.ReportStats called with {statsCounters.Count} counters, name: {State.SiloName}, id: , {State.Id}");
 
             try
             {
@@ -86,15 +80,11 @@ namespace Orleans.Telemetry
             }
             catch (Exception ex)
             {
-                if (Logger != null && Logger.IsVerbose)
-                {
-                    Logger.Verbose($"{ nameof(StatsdClientMetricsProvider)}.ReportStats failed: {0}", ex);
-                }
-
+                Trace.Write(ex);
                 throw;
             }
 
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
         private static void SendStats(ICounter counter)

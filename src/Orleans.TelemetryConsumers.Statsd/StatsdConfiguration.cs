@@ -7,7 +7,7 @@ namespace Orleans.Telemetry
     {
         private static bool _configured = false;
 
-        public static void Initialize(string serverName, int port, string prefix, int maxUdpPacketSize, string hostName, string siloName)
+        public static void Initialize(string serverName, int port, string siloName, string prefix, string hostName, int maxUdpPacketSize = 512)
         {
             Metrics.Configure(new MetricsConfig
             {
@@ -18,8 +18,10 @@ namespace Orleans.Telemetry
                     : $"{prefix.ToLower()}.{hostName.ToLower()}",
                 StatsdMaxUDPPacketSize = maxUdpPacketSize
             });
+
+            _configured = true;
         }
-        
+
         public static void CheckConfiguration()
         {
             if (!_configured)

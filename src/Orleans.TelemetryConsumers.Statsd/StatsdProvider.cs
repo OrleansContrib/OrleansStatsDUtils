@@ -1,14 +1,30 @@
-﻿using Orleans.Providers;
+﻿using System;
+using Orleans.Providers;
 using Orleans.Runtime;
 using StatsdClient;
 using System.Threading.Tasks;
 
 namespace Orleans.Telemetry
 {
+    class State
+    {
+        public string DeploymentId { get; set; } = "";
+        public bool IsSilo { get; set; } = true;
+        public string SiloName { get; set; } = "";
+        public string Id { get; set; } = "";
+        public string Address { get; set; } = "";
+        public string GatewayAddress { get; set; } = "";
+        public string HostName { get; set; } = "";
+
+        public string StatsDServerName { get; set; } = "127.0.0.1";
+        public int StatsDServerPort { get; set; } = 8125;
+        public string StatsDPrefix { get; set; } = "";
+        public int StatsDMaxUdpPacketSize { get; set; } = 512;
+        public Guid ServiceId { get; set; } = Guid.Empty;
+    }
+
     public abstract class StatsdProvider : IProvider
     {
-        protected Logger Logger;
-
         internal readonly State State = new State();
 
         public StatsdProvider()
@@ -29,9 +45,8 @@ namespace Orleans.Telemetry
 
             State.Id = providerRuntime.SiloIdentity;
             State.ServiceId = providerRuntime.ServiceId;
-            Logger = providerRuntime.GetLogger(typeof(StatsdStatisticsProvider).Name);
-
-            return TaskDone.Done;
+            
+            return Task.CompletedTask;
         }
 
         protected static void SendCoreMetrics(ICorePerformanceMetrics metricsData)
@@ -56,6 +71,6 @@ namespace Orleans.Telemetry
         /// <summary>
         /// Closes provider
         /// </summary>        
-        public Task Close() => TaskDone.Done;
+        public Task Close() => Task.CompletedTask;
     }
 }
