@@ -218,7 +218,7 @@ namespace Orleans.Telemetry
 
             foreach (var item in metrics)
             {
-                Metrics.Set($"{_indexPrefix}.{item.Key}", item.Value.ToString());
+                Metrics.Set($"{_indexPrefix}.{item.Key}", item.Value?.ToString());
             }
         }
 

@@ -29,6 +29,8 @@ namespace TestHost
 
             var statsdhost = "";
 
+            StatsdConfiguration.Initialize("localhost", 8125, "test-silo", "test", "local");
+
             var esTeleM = new StatsdTelemetryConsumer(statsdhost);
             LogManager.TelemetryConsumers.Add(esTeleM);
             LogManager.LogConsumers.Add(esTeleM);
@@ -36,8 +38,6 @@ namespace TestHost
 
             _siloHost = new SiloHost("primary", clusterConfig);
         }
-
-
 
         public bool Run()
         {
