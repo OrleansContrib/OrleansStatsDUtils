@@ -10,11 +10,11 @@ namespace TestHost
     {
         public bool Debug
         {
-            get { return siloHost != null && siloHost.Debug; }
-            set { siloHost.Debug = value; }
+            get { return _siloHost != null && _siloHost.Debug; }
+            set { _siloHost.Debug = value; }
         }
 
-        private SiloHost siloHost;
+        SiloHost _siloHost;
 
         /// <summary>
         /// start primary
@@ -34,7 +34,7 @@ namespace TestHost
             LogManager.LogConsumers.Add(esTeleM);
 
 
-            siloHost = new SiloHost("primary", clusterConfig);
+            _siloHost = new SiloHost("primary", clusterConfig);
         }
 
 
@@ -45,16 +45,16 @@ namespace TestHost
 
             try
             {
-                siloHost.InitializeOrleansSilo();
+                _siloHost.InitializeOrleansSilo();
 
-                ok = siloHost.StartOrleansSilo();
+                ok = _siloHost.StartOrleansSilo();
                 if (!ok)
                     throw new SystemException(string.Format("Failed to start Orleans silo '{0}' as a {1} node.",
-                        siloHost.Name, siloHost.Type));
+                        _siloHost.Name, _siloHost.Type));
             }
             catch (Exception exc)
             {
-                siloHost.ReportStartupError(exc);
+                _siloHost.ReportStartupError(exc);
                 var msg = string.Format("{0}:\n{1}\n{2}", exc.GetType().FullName, exc.Message, exc.StackTrace);
                 Console.WriteLine(msg);
             }
@@ -68,11 +68,11 @@ namespace TestHost
 
             try
             {
-                siloHost.StopOrleansSilo();
+                _siloHost.StopOrleansSilo();
             }
             catch (Exception exc)
             {
-                siloHost.ReportStartupError(exc);
+                _siloHost.ReportStartupError(exc);
                 var msg = $"{exc.GetType().FullName}:\n{exc.Message}\n{exc.StackTrace}";
                 Console.WriteLine(msg);
             }
@@ -87,8 +87,8 @@ namespace TestHost
 
         protected virtual void Dispose(bool dispose)
         {
-            siloHost.Dispose();
-            siloHost = null;
+            _siloHost.Dispose();
+            _siloHost = null;
         }
     }
 }

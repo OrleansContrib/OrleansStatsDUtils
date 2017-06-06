@@ -45,6 +45,6 @@ namespace TestHost
             }
         }
 
-        private static OrleansHostWrapper hostWrapper;
+        static OrleansHostWrapper hostWrapper;
     }
 }

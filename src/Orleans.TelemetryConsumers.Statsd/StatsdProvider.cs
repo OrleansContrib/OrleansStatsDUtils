@@ -15,7 +15,6 @@ namespace Orleans.Telemetry
         public string Address { get; set; } = "";
         public string GatewayAddress { get; set; } = "";
         public string HostName { get; set; } = "";
-
         public string StatsDServerName { get; set; } = "127.0.0.1";
         public int StatsDServerPort { get; set; } = 8125;
         public string StatsDPrefix { get; set; } = "";

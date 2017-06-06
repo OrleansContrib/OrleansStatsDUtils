@@ -180,7 +180,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Orleans.TelemetryConsumers.Statsd\Orleans.TelemetryConsumers.Statsd.csproj">
-      <Project>{8a54e4aa-5c5e-479d-9deb-c56a8fbb4e25}</Project>
+      <Project>{EF62143D-C265-4409-B3F7-CB2BB23214D1}</Project>
       <Name>Orleans.TelemetryConsumers.Statsd</Name>
     </ProjectReference>
   </ItemGroup>

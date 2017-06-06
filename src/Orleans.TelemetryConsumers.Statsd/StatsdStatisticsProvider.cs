@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace Orleans.Telemetry
 {
-    public class StatsdStatisticsProvider : StatsdProvider, IConfigurableSiloMetricsDataPublisher, IStatisticsPublisher
+    public class StatsdStatisticsProvider : StatsdProvider, IConfigurableSiloMetricsDataPublisher, 
+                                            IStatisticsPublisher
     {
         public StatsdStatisticsProvider()
         {

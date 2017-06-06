@@ -5,9 +5,10 @@ namespace Orleans.Telemetry
 {
     public static class StatsdConfiguration
     {
-        private static bool _configured = false;
+        static bool _configured = false;
 
-        public static void Initialize(string serverName, int port, string siloName, string prefix, string hostName, int maxUdpPacketSize = 512)
+        public static void Initialize(string serverName, int port, string siloName, string prefix, 
+                                      string hostName, int maxUdpPacketSize = 512, bool useTcpProtocol = false)
         {
             Metrics.Configure(new MetricsConfig
             {
@@ -16,7 +17,8 @@ namespace Orleans.Telemetry
                 Prefix = string.IsNullOrEmpty(prefix)
                     ? $"{hostName.ToLower()}.{siloName.ToLower()}"
                     : $"{prefix.ToLower()}.{hostName.ToLower()}",
-                StatsdMaxUDPPacketSize = maxUdpPacketSize
+                StatsdMaxUDPPacketSize = maxUdpPacketSize,
+                UseTcpProtocol = useTcpProtocol
             });
 
             _configured = true;
@@ -26,7 +28,7 @@ namespace Orleans.Telemetry
         {
             if (!_configured)
             {
-                throw new Exception("You should call StatsdConfiguration.Initialize() first");
+                throw new Exception("You should call StatsdConfiguration.Initialize(...) first");
             }
         }
     }

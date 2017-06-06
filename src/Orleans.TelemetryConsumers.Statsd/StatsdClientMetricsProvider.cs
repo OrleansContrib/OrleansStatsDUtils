@@ -57,7 +57,7 @@ namespace Orleans.Telemetry
             return Task.CompletedTask;
         }
 
-        private static void SendClientPerformanceMetrics(IClientPerformanceMetrics metricsData)
+        static void SendClientPerformanceMetrics(IClientPerformanceMetrics metricsData)
         {
             SendCoreMetrics(metricsData);
 
@@ -87,7 +87,7 @@ namespace Orleans.Telemetry
             return Task.CompletedTask;
         }
 
-        private static void SendStats(ICounter counter)
+        static void SendStats(ICounter counter)
         {
             var valueStr = counter.IsValueDelta
                 ? counter.GetDeltaString()
