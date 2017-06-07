@@ -1,4 +1,4 @@
-﻿using Orleans.Runtime;
+using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using StatsdClient;
 using System;
@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
+using Orleans.Providers;
 
 namespace Orleans.Telemetry
 {
@@ -25,6 +26,13 @@ namespace Orleans.Telemetry
             State.Id = clientId;
             State.Address = address.ToString();
             State.HostName = hostName;
+        }
+
+        public override Task Init(string name, IProviderRuntime providerRuntime, IProviderConfiguration config)
+        {
+            Name = name;
+            
+            return Task.CompletedTask;
         }
 
         public Task Init(ClientConfiguration config, IPAddress address, string clientId)
