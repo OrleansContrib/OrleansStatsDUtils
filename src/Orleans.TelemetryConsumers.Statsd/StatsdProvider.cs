@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Orleans.Providers;
 using Orleans.Runtime;
 using StatsdClient;
@@ -38,7 +38,7 @@ namespace Orleans.Telemetry
         /// <param name="providerRuntime"></param>
         /// <param name="config"></param>
         /// <returns></returns>
-        public Task Init(string name, IProviderRuntime providerRuntime, IProviderConfiguration config)
+        public virtual Task Init(string name, IProviderRuntime providerRuntime, IProviderConfiguration config)
         {
             Name = name;
 
@@ -65,7 +65,7 @@ namespace Orleans.Telemetry
         /// <summary>
         /// Name of the provider
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; protected set; }
 
         /// <summary>
         /// Closes provider
