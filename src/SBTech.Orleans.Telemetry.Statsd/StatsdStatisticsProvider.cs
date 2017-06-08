@@ -1,27 +1,22 @@
-﻿using Orleans.Runtime;
-using StatsdClient;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Orleans.Runtime;
+using StatsdClient;
 
-namespace Orleans.Telemetry
+namespace SBTech.Orleans.Telemetry.Statsd
 {
-    public class StatsdStatisticsProvider : StatsdProvider, IConfigurableSiloMetricsDataPublisher, 
+    public class StatsdStatisticsProvider : StatsdProvider, IConfigurableSiloMetricsDataPublisher,
                                             IStatisticsPublisher
     {
-        public StatsdStatisticsProvider()
-        {
-            StatsdConfiguration.CheckConfiguration();
-        }
-
         public Task Init(string deploymentId, string storageConnectionString, SiloAddress siloAddress, string siloName,
             IPEndPoint gateway, string hostName)
         {
-            
+
             State.Address = siloAddress.Endpoint.ToString();
             State.DeploymentId = deploymentId;
             State.SiloName = siloName;

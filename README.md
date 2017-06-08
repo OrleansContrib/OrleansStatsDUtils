@@ -15,17 +15,13 @@ var telem = new StatsdTelemetryConsumer("orleans_telemetry");
 LogManager.TelemetryConsumers.Add(telem);
 LogManager.LogConsumers.Add(telem);
 
-///
-
-
-
 //then start your silo
 siloHost = new SiloHost("primary", clusterConfig);
 ```
 
 ## Supports
 - [x] Silo statistics
-- [ ] Client statistics
+- [x] Client statistics
 - [ ] .NET Core
 
 ## Configuration for Silo
@@ -48,7 +44,7 @@ siloHost = new SiloHost("primary", clusterConfig);
 
 ## Environmental setup
 
-You need an ElasticSearch host, and likely you want Kibana to view the data
+You need an statsd host, and likely you want Graphan to view the data
 
 ### start your silo(s)
 

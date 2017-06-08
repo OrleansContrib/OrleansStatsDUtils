@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Orleans.TelemetryConsumers.Statsd\Orleans.TelemetryConsumers.Statsd.csproj" />
+    <ProjectReference Include="..\..\src\SBTech.Orleans.Telemetry.Statsd\SBTech.Orleans.Telemetry.Statsd.csproj" />
   </ItemGroup>
   
 </Project>

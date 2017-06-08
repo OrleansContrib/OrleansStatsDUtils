@@ -1,8 +1,8 @@
-﻿using Orleans.Runtime;
+﻿using System;
+using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using Orleans.Runtime.Host;
-using Orleans.Telemetry;
-using System;
+using SBTech.Orleans.Telemetry.Statsd;
 
 namespace TestHost
 {
@@ -28,8 +28,6 @@ namespace TestHost
             // for an easy way to run a ELK stack via docker
 
             var statsdhost = "";
-
-            StatsdConfiguration.Initialize("localhost", 8125, "test-silo", "test", "local");
 
             var esTeleM = new StatsdTelemetryConsumer(statsdhost);
             LogManager.TelemetryConsumers.Add(esTeleM);

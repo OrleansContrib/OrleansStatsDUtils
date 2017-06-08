@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyName>SBTech.Orleans.Telemetry.Statsd</AssemblyName>
+    <RootNamespace>SBTech.Orleans.Telemetry.Statsd</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

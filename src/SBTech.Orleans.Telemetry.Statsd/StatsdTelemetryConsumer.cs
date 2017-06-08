@@ -5,18 +5,16 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Net;
 
-namespace Orleans.Telemetry
+namespace SBTech.Orleans.Telemetry.Statsd
 {
-    public class StatsdTelemetryConsumer : IMetricTelemetryConsumer, ITraceTelemetryConsumer,
+    public class StatsdTelemetryConsumer : StatsdProvider, IMetricTelemetryConsumer, ITraceTelemetryConsumer,
                                            IEventTelemetryConsumer, IExceptionTelemetryConsumer,
-                                           IDependencyTelemetryConsumer, IRequestTelemetryConsumer,
-                                           IFlushableLogConsumer
+                                           IDependencyTelemetryConsumer, IRequestTelemetryConsumer, ILogConsumer
     {
         readonly string _indexPrefix;
 
         public StatsdTelemetryConsumer(string indexPrefix = "")
         {
-            StatsdConfiguration.CheckConfiguration();
             _indexPrefix = indexPrefix;
         }
 
@@ -95,24 +93,6 @@ namespace Orleans.Telemetry
             WriteTrace(message, severity, properties);
         }
 
-        public void WriteTrace(string message, Severity severity, IDictionary<string, string> properties)
-        {
-            var metrics = new Dictionary<string, Object>();
-
-            metrics.Add("message", message);
-            metrics.Add("severity", severity.ToString());
-
-            if (properties != null)
-            {
-                foreach (var prop in properties)
-                {
-                    metrics.Add(prop.Key, prop.Value);
-                }
-            }
-
-            FinalWrite(metrics, TraceTelemetryType);
-        }
-
         public void DecrementMetric(string name)
         {
             WriteMetric(name, -1);
@@ -143,24 +123,6 @@ namespace Orleans.Telemetry
             WriteMetric(name, value, properties);
         }
 
-        public void WriteMetric(string name, double value, IDictionary<string, string> properties = null)
-        {
-            var metrics = new Dictionary<string, Object>();
-
-            metrics.Add(name, value);
-
-            if (properties != null)
-            {
-                foreach (var prop in properties)
-                {
-                    metrics.Add(prop.Key, prop.Value);
-                }
-            }
-
-            FinalWrite(metrics, MetricTelemetryType);
-
-        }
-
         public void TrackDependency(string dependencyName, string commandName, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
             var metrics = new Dictionary<string, Object>();
@@ -174,7 +136,6 @@ namespace Orleans.Telemetry
             FinalWrite(metrics, DependencyTelemetryType);
         }
 
-
         public void TrackRequest(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode, bool success)
         {
             var metrics = new Dictionary<string, Object>();
@@ -186,7 +147,6 @@ namespace Orleans.Telemetry
             metrics.Add("success", success);
 
             FinalWrite(metrics, RequestTelemetryType);
-
         }
 
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
@@ -211,6 +171,14 @@ namespace Orleans.Telemetry
             FinalWrite(eventData, EventTelemetryType);
         }
 
+        public void Flush()
+        {
+        }
+
+        void ITelemetryConsumer.Close()
+        {
+        }
+
         void FinalWrite(IDictionary<string, object> metrics, string eventType)
         {
             metrics.Add($"utc_date_time_{eventType}", DateTimeOffset.UtcNow.UtcDateTime);
@@ -222,12 +190,40 @@ namespace Orleans.Telemetry
             }
         }
 
-        public void Flush()
+        void WriteTrace(string message, Severity severity, IDictionary<string, string> properties)
         {
+            var metrics = new Dictionary<string, Object>();
+
+            metrics.Add("message", message);
+            metrics.Add("severity", severity.ToString());
+
+            if (properties != null)
+            {
+                foreach (var prop in properties)
+                {
+                    metrics.Add(prop.Key, prop.Value);
+                }
+            }
+
+            FinalWrite(metrics, TraceTelemetryType);
         }
 
-        public void Close()
+        void WriteMetric(string name, double value, IDictionary<string, string> properties = null)
         {
+            var metrics = new Dictionary<string, Object>();
+
+            metrics.Add(name, value);
+
+            if (properties != null)
+            {
+                foreach (var prop in properties)
+                {
+                    metrics.Add(prop.Key, prop.Value);
+                }
+            }
+
+            FinalWrite(metrics, MetricTelemetryType);
+
         }
     }
 }

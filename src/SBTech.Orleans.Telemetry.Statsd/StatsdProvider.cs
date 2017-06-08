@@ -1,10 +1,10 @@
-using System;
+﻿using System;
+using System.Threading.Tasks;
 using Orleans.Providers;
 using Orleans.Runtime;
 using StatsdClient;
-using System.Threading.Tasks;
 
-namespace Orleans.Telemetry
+namespace SBTech.Orleans.Telemetry.Statsd
 {
     class State
     {
@@ -26,25 +26,47 @@ namespace Orleans.Telemetry
     {
         internal readonly State State = new State();
 
-        public StatsdProvider()
-        {
-            StatsdConfiguration.CheckConfiguration();
-        }
-
         /// <summary>
         /// Initialization of StatsdStatisticsProvider
         /// </summary>
         /// <param name="name"></param>
         /// <param name="providerRuntime"></param>
-        /// <param name="config"></param>
+        /// <param name="providerConfiguration"></param>
         /// <returns></returns>
-        public virtual Task Init(string name, IProviderRuntime providerRuntime, IProviderConfiguration config)
+        public virtual Task Init(string name, IProviderRuntime providerRuntime, IProviderConfiguration providerConfiguration)
         {
             Name = name;
 
-            State.Id = providerRuntime.SiloIdentity;
-            State.ServiceId = providerRuntime.ServiceId;
+            if (providerRuntime.ServiceProvider != null)
+            {
+                State.Id = providerRuntime.SiloIdentity;
+                State.ServiceId = providerRuntime.ServiceId;
+            }
             
+            if (providerConfiguration.Properties.ContainsKey("StatsDServerName"))
+                State.StatsDServerName = providerConfiguration.Properties["StatsDServerName"];
+
+            if (providerConfiguration.Properties.ContainsKey("StatsDServerPort"))
+                State.StatsDServerPort = int.Parse(providerConfiguration.Properties["StatsDServerPort"]);
+
+            if (providerConfiguration.Properties.ContainsKey("StatsDPrefix"))
+                State.StatsDPrefix = providerConfiguration.Properties["StatsDPrefix"];
+
+            if (providerConfiguration.Properties.ContainsKey("StatsDMaxUdpPacketSize"))
+                State.StatsDMaxUdpPacketSize = int.Parse(providerConfiguration.Properties["StatsDMaxUdpPacketSize"]);
+
+            var config = new MetricsConfig
+            {
+                StatsdServerName = State.StatsDServerName,
+                StatsdServerPort = State.StatsDServerPort,
+                Prefix = string.IsNullOrEmpty(State.StatsDPrefix)
+                    ? $"{State.HostName.ToLower()}.{State.SiloName.ToLower()}"
+                    : $"{State.StatsDPrefix.ToLower()}.{State.HostName.ToLower()}",
+                StatsdMaxUDPPacketSize = State.StatsDMaxUdpPacketSize
+            };
+
+            Metrics.Configure(config);
+
             return Task.CompletedTask;
         }
 
@@ -65,7 +87,7 @@ namespace Orleans.Telemetry
         /// <summary>
         /// Name of the provider
         /// </summary>
-        public string Name { get; protected set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Closes provider
