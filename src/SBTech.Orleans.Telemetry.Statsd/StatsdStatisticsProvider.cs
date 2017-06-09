@@ -52,8 +52,6 @@ namespace SBTech.Orleans.Telemetry.Statsd
         /// </summary>        
         public Task ReportMetrics(ISiloPerformanceMetrics metricsData)
         {
-            Trace.Write($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics called with metrics: {metricsData}, name: {State.SiloName}, id: {State.Id}.");
-
             try
             {
                 SendSiloMetrics(metricsData);
@@ -61,9 +59,7 @@ namespace SBTech.Orleans.Telemetry.Statsd
             catch (Exception ex)
             {
                 Trace.Write($"{ nameof(StatsdStatisticsProvider)}.ReportMetrics failed: {ex}");
-                throw;
             }
-
             return Task.CompletedTask;
         }
 
@@ -72,8 +68,6 @@ namespace SBTech.Orleans.Telemetry.Statsd
         /// </summary>  
         public Task ReportStats(List<ICounter> statsCounters)
         {
-            Trace.Write($"{ nameof(StatsdStatisticsProvider)}.ReportStats called with {statsCounters.Count} counters, name: {State.SiloName}, id: {State.Id}");
-
             try
             {
                 var counters = statsCounters.Where(cs => cs.Storage == CounterStorage.LogAndTable);
@@ -85,10 +79,8 @@ namespace SBTech.Orleans.Telemetry.Statsd
             }
             catch (Exception ex)
             {
-                Trace.Write($"{nameof(StatsdStatisticsProvider)}.ReportStats failed: {ex}");
-                throw;
+                Trace.Write($"{nameof(StatsdStatisticsProvider)}.ReportStats failed: {ex}");            
             }
-
             return Task.CompletedTask;
         }
 

@@ -29,7 +29,7 @@ namespace SBTech.Orleans.Telemetry.Statsd
         public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint,
                         Exception exception, int eventCode = 0)
         {
-            var metrics = new ExpandoObject() as IDictionary<string, Object>;
+            var metrics = new Dictionary<string, Object>();
 
             metrics.Add("severity", severity.ToString());
             metrics.Add("loggerType", loggerType);
@@ -44,26 +44,27 @@ namespace SBTech.Orleans.Telemetry.Statsd
 
         public void TrackException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
-            var tm = new ExpandoObject() as IDictionary<string, Object>;
-            tm.Add("exception", exception);
-            tm.Add("message", exception.Message);
+            var errors = new Dictionary<string, Object>();
+
+            errors.Add("exception", exception);
+            errors.Add("message", exception.Message);
 
             if (properties != null)
             {
                 foreach (var prop in properties)
                 {
-                    tm.Add(prop.Key, prop.Value);
+                    errors.Add(prop.Key, prop.Value);
                 }
             }
             if (metrics != null)
             {
                 foreach (var prop in metrics)
                 {
-                    tm.Add(prop.Key, prop.Value);
+                    errors.Add(prop.Key, prop.Value);
                 }
             }
 
-            FinalWrite(tm, ExceptionTelemetryType);
+            FinalWrite(errors, ExceptionTelemetryType);
         }
 
         public void TrackTrace(string message)
@@ -223,7 +224,6 @@ namespace SBTech.Orleans.Telemetry.Statsd
             }
 
             FinalWrite(metrics, MetricTelemetryType);
-
         }
     }
 }

@@ -61,8 +61,6 @@ namespace SBTech.Orleans.Telemetry.Statsd
 
         public Task ReportMetrics(ISiloPerformanceMetrics metricsData)
         {
-            Trace.Write($"{nameof(StatsdClientMetricsProvider)}.ReportMetrics called with metrics: {metricsData}, name: {State.SiloName}, id: {State.Id}.");
-
             try
             {
                 SendCoreMetrics(metricsData);
@@ -76,19 +74,15 @@ namespace SBTech.Orleans.Telemetry.Statsd
             catch (Exception ex)
             {
                 Trace.Write($"{ nameof(StatsdClientMetricsProvider)}.ReportMetrics failed: {ex}");
-                throw;
             }
-
             return Task.CompletedTask;
         }
-        
+
         /// <summary>
         /// Metrics for client
         /// </summary>        
         public Task ReportMetrics(IClientPerformanceMetrics metricsData)
         {
-            Trace.Write($"{nameof(StatsdClientMetricsProvider)}.ReportMetrics called with metrics: {metricsData}, name: {State.SiloName}, id: {State.Id}.");
-
             try
             {
                 SendClientPerformanceMetrics(metricsData);
@@ -96,29 +90,23 @@ namespace SBTech.Orleans.Telemetry.Statsd
             catch (Exception ex)
             {
                 Trace.Write($"{ nameof(StatsdClientMetricsProvider)}.ReportMetrics failed: {ex}");
-                throw;
             }
-
             return Task.CompletedTask;
         }
 
         public Task ReportStats(List<ICounter> statsCounters)
         {
-            Trace.Write($"{ nameof(StatsdClientMetricsProvider)}.ReportStats called with {statsCounters.Count} counters, name: {State.SiloName}, id: , {State.Id}");
-
-            try
+            foreach (var counter in statsCounters)
             {
-                foreach (var counter in statsCounters)
+                try
                 {
                     SendStats(counter);
                 }
+                catch (Exception ex)
+                {
+                    Trace.Write(ex);
+                }
             }
-            catch (Exception ex)
-            {
-                Trace.Write(ex);
-                throw;
-            }
-
             return Task.CompletedTask;
         }
 
@@ -145,13 +133,9 @@ namespace SBTech.Orleans.Telemetry.Statsd
                 var counterName = counter.Name.ToLowerInvariant();
 
                 if (counter.IsValueDelta)
-                {
                     Metrics.GaugeDelta(counterName, value);
-                }
                 else
-                {
                     Metrics.GaugeAbsoluteValue(counterName, value);
-                }
             }
         }
     }
