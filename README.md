@@ -13,16 +13,13 @@ Orleans statistics provider for StatsD
 <OrleansConfiguration xmlns="urn:orleans">
   <Globals>
     <StatisticsProviders>
-      <Provider Type="Orleans.TelemetryConsumers.Statsd.StatsDStatisticsProvider"
-                Name="StatsdStatisticsProvider"
+      <Provider Type="SBTech.OrleansStatsDUtils.StatsDStatisticsProvider"
+                Name="StatsDStatisticsProvider"
                 StatsDServerName="localhost"
                 StatsDServerPort="8125"
                 StatsDPrefix="app_name"
                 StatsDMaxUdpPacketSize="512"/>
     </StatisticsProviders>
-  </Globals>
-  <Defaults>
-    <Statistics ProviderType="StatsDStatisticsProvider" WriteLogStatisticsToTable="true"/>
-  </Defaults>
+  </Globals>  
 </OrleansConfiguration>
 ```
