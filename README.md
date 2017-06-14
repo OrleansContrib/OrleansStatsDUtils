@@ -1,23 +1,6 @@
-# Orleans.TelemetryConsumers.Statsd
+# OrleansStatsDUtils
 
-A collection of telemtry consumers delivering data to Statsd.
-
-## Usage
-
-* get your statsd  settings
-* choose an index prefix
-
-
-```cs
-StatsdConfiguration.Initialize(serverName, port,  prefix, siloName, hostName, maxUdpPacketSize);
-
-var telem = new StatsdTelemetryConsumer("orleans_telemetry");
-LogManager.TelemetryConsumers.Add(telem);
-LogManager.LogConsumers.Add(telem);
-
-//then start your silo
-siloHost = new SiloHost("primary", clusterConfig);
-```
+Orleans statistics provider for StatsD
 
 ## Supports
 - [x] Silo statistics
@@ -33,7 +16,9 @@ siloHost = new SiloHost("primary", clusterConfig);
       <Provider Type="Orleans.TelemetryConsumers.Statsd.StatsDStatisticsProvider"
                 Name="StatsdStatisticsProvider"
                 StatsDServerName="localhost"
-                StatsDPrefix="app_name" />
+                StatsDServerPort="8125"
+                StatsDPrefix="app_name"
+                StatsDMaxUdpPacketSize="512"/>
     </StatisticsProviders>
   </Globals>
   <Defaults>
@@ -41,11 +26,3 @@ siloHost = new SiloHost("primary", clusterConfig);
   </Defaults>
 </OrleansConfiguration>
 ```
-
-## Environmental setup
-
-You need an statsd host, and likely you want Graphan to view the data
-
-### start your silo(s)
-
-see https://gitter.im/dotnet/orleans or create an issue here for problems
