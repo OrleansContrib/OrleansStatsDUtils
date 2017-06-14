@@ -7,6 +7,13 @@ Orleans statistics provider for StatsD
 - [x] Client statistics
 - [ ] .NET Core
 
+## Installation
+Using the Package Manager Console:
+
+```
+PM> Install-Package SBTech.OrleansStatsDUtils 
+```
+
 ## Configuration for Silo
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
